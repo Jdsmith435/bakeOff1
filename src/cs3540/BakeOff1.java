@@ -70,10 +70,11 @@ public class BakeOff1 extends PApplet {
 	}
 
 	public void draw() {
-		background(0); // set background to black
-
+//		background(255); // set background to black
+		  background(255);
 		if (trialNum >= trials.size()) // check to see if test is over
 		{
+			background(0);
 			float timeTaken = (finishTime - startTime) / 1000f;
 			float penalty = constrain(((95f - ((float) hits * 100f / (float) (hits + misses))) * .2f), 0, 100);
 			fill(255); // set fill color to white
@@ -90,7 +91,39 @@ public class BakeOff1 extends PApplet {
 					height / 2 + 140);
 			return; // return, nothing else to do now test is over
 		}
+		
+		
+		
+		if(trialNum < 15 /*&& trials.get(trialNum+1) == i*/){
+			
+		Rectangle bound = getButtonLocation(trials.get(trialNum));
+		Rectangle bound2 = getButtonLocation(trials.get(trialNum+1));
 
+		float x1 = bound.x+20;
+		float y1 = bound.y+20;
+		float x2 = bound2.x;
+		float y2 = bound2.y; 
+
+		stroke(0, 0, 255);
+		strokeWeight(3); 
+		line(x1, y1, x2, y2);
+
+		  // Calculate the angle of the line
+		  float angle = atan2(y2 - y1, x2 - x1);
+		  
+		  // Calculate the position of the arrowhead
+		  float arrowSize = 10;
+		  float arrowX = x2 - cos(angle - PI/6) * arrowSize;
+		  float arrowY = y2 - sin(angle - PI/6) * arrowSize;
+		  
+		  // Draw the arrowhead
+		  triangle(x2, y2, arrowX, arrowY, x2 - cos(angle + PI/6) * arrowSize, y2 - sin(angle + PI/6) * arrowSize);
+
+		stroke(0, 0, 0);
+		strokeWeight(0); 
+		line(x1, y1, x2, y2);
+			
+		}
 		fill(255); // set fill color to white
 		text((trialNum + 1) + " of " + trials.size(), 40, 20); // display what trial the user is on
 
@@ -98,7 +131,7 @@ public class BakeOff1 extends PApplet {
 			drawButton(i); // draw button
 
 		fill(255, 0, 0, 200); // set fill color to translucent red
-		ellipse(mouseX, mouseY, 20, 20); // draw user cursor as a circle with a diameter of 20
+//		ellipse(mouseX, mouseY, 20, 20); // draw user cursor as a circle with a diameter of 20
 
 	}
 
@@ -153,7 +186,14 @@ public class BakeOff1 extends PApplet {
 		Rectangle bounds = getButtonLocation(i);
 
 		if (trials.get(trialNum) == i) // see if current button is the target
-			fill(255, 0, 0); // if so, fill cyan
+			if ((mouseX > bounds.x && mouseX < bounds.x + bounds.width)
+					&& (mouseY > bounds.y && mouseY < bounds.y + bounds.height)) {
+				fill(0, 255, 0); // if so, fill cyan
+
+			} else {
+				fill(0, 100, 0); // if so, fill cyan
+				
+			}
 		else if (trialNum < 15 && trials.get(trialNum+1) == i)
 			fill(100, 100, 100);
 		else
@@ -173,8 +213,15 @@ public class BakeOff1 extends PApplet {
 	}
 
 	public void keyPressed() {
-		// can use the keyboard if you wish
-		// https://processing.org/reference/keyTyped_.html
-		// https://processing.org/reference/keyCode.html
+		switch (keyCode) {
+		case '1':
+			break;
+		case '2':
+			break;
+		case '3':
+			break;
+		case '4':
+			break;
+		}
 	}
 }
