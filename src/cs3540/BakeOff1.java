@@ -5,7 +5,6 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.awt.Toolkit;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.MouseInfo;
@@ -33,9 +32,9 @@ public class BakeOff1 extends PApplet {
 	int misses = 0; // number of missed clicks
 	Robot robot; // initialized in setup
 
-	int numRepeats = 3; // sets the number of times each button repeats in the test
+	int numRepeats = 3; // sets the number of times each button repeats in the test	
 	
-	Toolkit toolkit; // initialized in set up - gets user screen info
+	boolean targetHovered = false;
 
 	/**
 	 * https://processing.org/reference/settings_.html#:~:text=The%20settings()%20method%20runs,commands%20in%20the%20Processing%20API.
@@ -64,8 +63,6 @@ public class BakeOff1 extends PApplet {
 			e.printStackTrace();
 		}
 		
-		toolkit = Toolkit.getDefaultToolkit(); // toolkit to get user screen dimensions
-
 		// ===DON'T MODIFY MY RANDOM ORDERING CODE==
 		for (int i = 0; i < 16; i++) // generate list of targets and randomize the order
 			// number of buttons in 4x4 grid
@@ -80,8 +77,8 @@ public class BakeOff1 extends PApplet {
 	}
 
 	public void draw() {
-//		background(255); // set background to black
-		  background(255);
+		background(255); // set background white
+		  
 		if (trialNum >= trials.size()) // check to see if test is over
 		{
 			background(0);
@@ -102,10 +99,17 @@ public class BakeOff1 extends PApplet {
 			return; // return, nothing else to do now test is over
 		}
 		
-		
-		
-		if(trialNum < trials.size() - 1){
+		// Change bg color to red if user's mouse deviates outside the button
+		Rectangle bounds = getButtonLocation(trials.get(trialNum));
+		if (trialNum > 0 &&
+				!((mouseX > bounds.x && mouseX < bounds.x + bounds.width) 
+				&& (mouseY > bounds.y && mouseY < bounds.y + bounds.height))) {
 			
+			if (targetHovered) background(255, 200, 200);
+		}
+
+		// Draw an arrow from curr box to next box
+		if(trialNum < trials.size() - 1){
 			Rectangle bound = getButtonLocation(trials.get(trialNum));
 			Rectangle bound2 = getButtonLocation(trials.get(trialNum+1));
 	
@@ -116,23 +120,16 @@ public class BakeOff1 extends PApplet {
 	
 			stroke(0, 0, 255);
 			strokeWeight(3); 
-			line(x1, y1, x2, y2);
-	
-			  // Calculate the angle of the line
-			  float angle = atan2(y2 - y1, x2 - x1);
-			  
-			  // Calculate the position of the arrowhead
-			  float arrowSize = 10;
-			  float arrowX = x2 - cos(angle - PI/6) * arrowSize;
-			  float arrowY = y2 - sin(angle - PI/6) * arrowSize;
-			  
-			  // Draw the arrowhead
-			  triangle(x2, y2, arrowX, arrowY, x2 - cos(angle + PI/6) * arrowSize, y2 - sin(angle + PI/6) * arrowSize);
-	
-			stroke(0, 0, 0);
-			strokeWeight(0); 
-			line(x1, y1, x2, y2);
+			drawArrow(x1, y1, x2, y2);
 			
+		}
+		
+		// Draw an arrow from mouse to current target
+		if (trialNum > 0) {
+			Rectangle currBoxLoc = getButtonLocation(trials.get(trialNum));
+			stroke(200);
+			strokeWeight(3);
+			drawArrow(mouseX, mouseY, currBoxLoc.x, currBoxLoc.y);
 		}
 		
 		for (int i = 0; i < 16; i++)// for all button
@@ -145,11 +142,7 @@ public class BakeOff1 extends PApplet {
 		for (int i = 0; i < 4; i++) {
 			Rectangle buttonLoc = getButtonLocation(i);
 			text(i + 1, (float) buttonLoc.getCenterX(), buttonLoc.y - 40);
-		}
-
-		fill(255, 0, 0, 200); // set fill color to translucent red
-//		ellipse(mouseX, mouseY, 20, 20); // draw user cursor as a circle with a diameter of 20
-
+		}		
 	}
 
 	public void mousePressed() // test to see if hit was in target!
@@ -175,18 +168,13 @@ public class BakeOff1 extends PApplet {
 		{
 			System.out.println("HIT! " + trialNum + " " + (millis() - startTime)); // success
 			hits++;
+			targetHovered = false;
 		} else {
 			System.out.println("MISSED! " + trialNum + " " + (millis() - startTime)); // fail
 			misses++;
 		}
 
 		trialNum++; // Increment trial number
-
-		// in this example design, I move the cursor back to the middle after each click
-		// Note. When running from eclipse the robot class affects the whole screen not
-		// just the GUI, so the mouse may move outside of the GUI.
-		// robot.mouseMove(width/2, (height)/2); //on click, move cursor to roughly
-		// center of window!
 	}
 
 	// probably shouldn't have to edit this method
@@ -206,13 +194,13 @@ public class BakeOff1 extends PApplet {
 			if ((mouseX > bounds.x && mouseX < bounds.x + bounds.width)
 					&& (mouseY > bounds.y && mouseY < bounds.y + bounds.height)) {
 				fill(0, 255, 0); // if so, fill cyan
-
+				targetHovered = true;
 			} else {
 				fill(0, 100, 0); // if so, fill cyan
 				
 			}
-		else if (trialNum < 15 && trials.get(trialNum+1) == i)
-			fill(100, 100, 100);
+		else if (trialNum < trials.size() - 1 && trials.get(trialNum+1) == i)
+			fill(100, 100, 100); // dark grey for next up target
 		else
 			fill(200); // if not, fill gray
 
@@ -246,5 +234,25 @@ public class BakeOff1 extends PApplet {
 			robot.mouseMove(nativeColX, nativeMouseY);
 			break;
 		}
+	}
+	
+	private void drawArrow(float x1, float y1, float x2, float y2) {
+		line(x1, y1, x2, y2);
+	
+		// Calculate the angle of the line
+		float angle = atan2(y2 - y1, x2 - x1);
+	  
+		// Calculate the position of the arrowhead
+		float arrowSize = 10;
+		float arrowX = x2 - cos(angle - PI/6) * arrowSize;
+		float arrowY = y2 - sin(angle - PI/6) * arrowSize;
+		
+		// Draw the arrowhead
+		triangle(x2, y2, arrowX, arrowY, x2 - cos(angle + PI/6) * arrowSize, y2 - sin(angle + PI/6) * arrowSize);
+	
+		line(x1, y1, x2, y2);
+		
+		stroke(0, 0, 0);
+		strokeWeight(0); 
 	}
 }
