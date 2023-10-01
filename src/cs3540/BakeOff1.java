@@ -27,7 +27,7 @@ public class BakeOff1 extends PApplet {
 	int misses = 0; // number of missed clicks
 	Robot robot; // initialized in setup
 
-	int numRepeats = 1; // sets the number of times each button repeats in the test
+	int numRepeats = 3; // sets the number of times each button repeats in the test
 
 	/**
 	 * https://processing.org/reference/settings_.html#:~:text=The%20settings()%20method%20runs,commands%20in%20the%20Processing%20API.
@@ -94,34 +94,34 @@ public class BakeOff1 extends PApplet {
 		
 		
 		
-		if(trialNum < 15 /*&& trials.get(trialNum+1) == i*/){
+		if(trialNum < trials.size() - 1){
 			
-		Rectangle bound = getButtonLocation(trials.get(trialNum));
-		Rectangle bound2 = getButtonLocation(trials.get(trialNum+1));
-
-		float x1 = bound.x+20;
-		float y1 = bound.y+20;
-		float x2 = bound2.x;
-		float y2 = bound2.y; 
-
-		stroke(0, 0, 255);
-		strokeWeight(3); 
-		line(x1, y1, x2, y2);
-
-		  // Calculate the angle of the line
-		  float angle = atan2(y2 - y1, x2 - x1);
-		  
-		  // Calculate the position of the arrowhead
-		  float arrowSize = 10;
-		  float arrowX = x2 - cos(angle - PI/6) * arrowSize;
-		  float arrowY = y2 - sin(angle - PI/6) * arrowSize;
-		  
-		  // Draw the arrowhead
-		  triangle(x2, y2, arrowX, arrowY, x2 - cos(angle + PI/6) * arrowSize, y2 - sin(angle + PI/6) * arrowSize);
-
-		stroke(0, 0, 0);
-		strokeWeight(0); 
-		line(x1, y1, x2, y2);
+			Rectangle bound = getButtonLocation(trials.get(trialNum));
+			Rectangle bound2 = getButtonLocation(trials.get(trialNum+1));
+	
+			float x1 = bound.x+20;
+			float y1 = bound.y+20;
+			float x2 = bound2.x;
+			float y2 = bound2.y; 
+	
+			stroke(0, 0, 255);
+			strokeWeight(3); 
+			line(x1, y1, x2, y2);
+	
+			  // Calculate the angle of the line
+			  float angle = atan2(y2 - y1, x2 - x1);
+			  
+			  // Calculate the position of the arrowhead
+			  float arrowSize = 10;
+			  float arrowX = x2 - cos(angle - PI/6) * arrowSize;
+			  float arrowY = y2 - sin(angle - PI/6) * arrowSize;
+			  
+			  // Draw the arrowhead
+			  triangle(x2, y2, arrowX, arrowY, x2 - cos(angle + PI/6) * arrowSize, y2 - sin(angle + PI/6) * arrowSize);
+	
+			stroke(0, 0, 0);
+			strokeWeight(0); 
+			line(x1, y1, x2, y2);
 			
 		}
 		fill(255); // set fill color to white
