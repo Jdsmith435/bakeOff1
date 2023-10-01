@@ -5,6 +5,12 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.awt.Toolkit;
+import java.awt.Frame;
+import java.awt.Point;
+import java.awt.MouseInfo;
+
+import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 
 public class BakeOff1 extends PApplet {
@@ -28,6 +34,8 @@ public class BakeOff1 extends PApplet {
 	Robot robot; // initialized in setup
 
 	int numRepeats = 3; // sets the number of times each button repeats in the test
+	
+	Toolkit toolkit; // initialized in set up - gets user screen info
 
 	/**
 	 * https://processing.org/reference/settings_.html#:~:text=The%20settings()%20method%20runs,commands%20in%20the%20Processing%20API.
@@ -55,6 +63,8 @@ public class BakeOff1 extends PApplet {
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
+		
+		toolkit = Toolkit.getDefaultToolkit(); // toolkit to get user screen dimensions
 
 		// ===DON'T MODIFY MY RANDOM ORDERING CODE==
 		for (int i = 0; i < 16; i++) // generate list of targets and randomize the order
@@ -124,11 +134,18 @@ public class BakeOff1 extends PApplet {
 			line(x1, y1, x2, y2);
 			
 		}
-		fill(255); // set fill color to white
-		text((trialNum + 1) + " of " + trials.size(), 40, 20); // display what trial the user is on
-
+		
 		for (int i = 0; i < 16; i++)// for all button
 			drawButton(i); // draw button
+		
+		fill(0); // set fill color to black
+		text((trialNum + 1) + " of " + trials.size(), 40, 20); // display what trial the user is on
+		
+		// Draw column numbers
+		for (int i = 0; i < 4; i++) {
+			Rectangle buttonLoc = getButtonLocation(i);
+			text(i + 1, (float) buttonLoc.getCenterX(), buttonLoc.y - 40);
+		}
 
 		fill(255, 0, 0, 200); // set fill color to translucent red
 //		ellipse(mouseX, mouseY, 20, 20); // draw user cursor as a circle with a diameter of 20
@@ -213,14 +230,20 @@ public class BakeOff1 extends PApplet {
 	}
 
 	public void keyPressed() {
+		// Fancy way to get the window frame info from the PApplet
+		Frame windowFrame = ((PSurfaceAWT.SmoothCanvas)((PSurfaceAWT)surface).getNative()).getFrame();
+		Point windowLocation = windowFrame.getLocation();
+		int nativeMouseY = MouseInfo.getPointerInfo().getLocation().y; // Just preserve the user's current y location
+		
 		switch (keyCode) {
 		case '1':
-			break;
 		case '2':
-			break;
 		case '3':
-			break;
 		case '4':
+			// Position the user's mouse in the selected column
+			int colX = (int)getButtonLocation((keyCode - 49)).getCenterX();
+			int nativeColX = windowLocation.x + colX;// Get columns's native y location on user screen
+			robot.mouseMove(nativeColX, nativeMouseY);
 			break;
 		}
 	}
