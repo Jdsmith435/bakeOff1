@@ -32,9 +32,14 @@ public class BakeOff1 extends PApplet {
 	int misses = 0; // number of missed clicks
 	Robot robot; // initialized in setup
 
-	int numRepeats = 3; // sets the number of times each button repeats in the test	
+	int numRepeats = 10; // sets the number of times each button repeats in the test	
 	
 	boolean targetHovered = false;
+	
+	// Var for tracking time per trial
+	int trialStartTime = 0;
+	
+	int participantID = 1;
 
 	/**
 	 * https://processing.org/reference/settings_.html#:~:text=The%20settings()%20method%20runs,commands%20in%20the%20Processing%20API.
@@ -146,7 +151,7 @@ public class BakeOff1 extends PApplet {
 	}
 
 	public void mousePressed() // test to see if hit was in target!
-	{
+	{	
 		if (trialNum >= trials.size()) // check if task is done
 			return;
 
@@ -156,8 +161,6 @@ public class BakeOff1 extends PApplet {
 		if (trialNum == trials.size() - 1) // check if final click
 		{
 			finishTime = millis();
-			// write to terminal some output:
-			System.out.println("we're all done!");
 		}
 
 		Rectangle bounds = getButtonLocation(trials.get(trialNum));
@@ -166,15 +169,48 @@ public class BakeOff1 extends PApplet {
 		if ((mouseX > bounds.x && mouseX < bounds.x + bounds.width)
 				&& (mouseY > bounds.y && mouseY < bounds.y + bounds.height)) // test to see if hit was within bounds
 		{
-			System.out.println("HIT! " + trialNum + " " + (millis() - startTime)); // success
 			hits++;
 			targetHovered = false;
 		} else {
-			System.out.println("MISSED! " + trialNum + " " + (millis() - startTime)); // fail
 			misses++;
 		}
 
 		trialNum++; // Increment trial number
+		
+		if (trialNum != 0) {
+			System.out.print(trialNum);
+			System.out.print(",");
+			System.out.print(participantID);
+			System.out.print(",");
+			// x and y at beginning of trial
+			System.out.print(mouseX);
+			System.out.print(",");
+			System.out.print(mouseY);
+			System.out.print(",");
+			// Target center x and y
+			System.out.print(bounds.getCenterX());
+			System.out.print(",");
+			System.out.print(bounds.getCenterY());
+			System.out.print(",");
+			// width of target
+			System.out.print(bounds.width);
+			System.out.print(",");
+			// Trial time
+			int trialFinishTime = millis();
+			float trialTime = (trialFinishTime - trialStartTime) / 1000f;
+			System.out.print(nf(trialTime, 0, 3));
+			System.out.print(",");
+			// target clicked successfully info
+			if ((mouseX > bounds.x && mouseX < bounds.x + bounds.width)
+					&& (mouseY > bounds.y && mouseY < bounds.y + bounds.height)) // test to see if hit was within bounds
+			{
+				System.out.println(1); // success
+			} else {
+				System.out.println(0); // fail
+			}
+		}
+		
+		trialStartTime = millis();
 	}
 
 	// probably shouldn't have to edit this method
